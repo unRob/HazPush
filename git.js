@@ -44,7 +44,6 @@
     if (this.submodules === true) exec("/usr/bin/env git submodule update");
     return this.status(function(cambios) {
       var status;
-      console.log(cambios);
       if (cambios.length > 0) {
         return callback({
           "error": true,
@@ -52,8 +51,8 @@
           "changes": cambios
         });
       } else {
-        return status = exec("/usr/bin/env git pull " + repo + " " + branch, function(error, stdout, stderr) {
-          var ret;
+        return status = exec("/usr/bin/env git pull " + repo + " " + branch + " 2>&1", function(error, stdout, stderr) {
+          var changes, line, lines, ret, strategy, summary, update;
           ret = validator(stdout).trim();
           if (ret === 'Already up-to-date.') {
             return callback({
@@ -61,7 +60,21 @@
               "because": "Branch '" + branch + "' is already up to date."
             });
           } else {
-            return callback(stdout);
+            lines = validator(stdout).trim().split("\n").slice(2);
+            update = validator(lines.shift()).trim();
+            strategy = validator(lines.shift()).trim();
+            summary = validator(lines.pop()).trim();
+            changes = [];
+            console.log("update: " + update);
+            for (line in lines) {
+              changes.push(validator(line).trim());
+            }
+            return callback({
+              "update": update,
+              "strategy": strategy,
+              "summary": summary,
+              "changes": changes
+            });
           }
         });
       }

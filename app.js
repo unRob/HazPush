@@ -1,5 +1,5 @@
 (function() {
-  var app, auth, config, crypto, express, fs, git, validator;
+  var app, auth, config, configFile, crypto, express, fs, git, validator;
 
   fs = require('fs');
 
@@ -11,7 +11,9 @@
 
   app = express.createServer();
 
-  config = JSON.parse(fs.readFileSync('config.js', 'utf8'));
+  configFile = process.argv[2];
+
+  config = JSON.parse(fs.readFileSync(configFile, 'utf8'));
 
   git = require('./git').create(config.git_dir);
 

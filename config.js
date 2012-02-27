@@ -1,4 +1,4 @@
 {
-	"git_dir": "/path/to/live/repo",
-	"key": "Este es un key para validar los requests"
+	"git_dir": "/path/to/repo",
+	"key": "Some very long and stupid key"
 }

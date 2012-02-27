@@ -36,16 +36,24 @@ Git.prototype.pull = (callback, repo='origin', branch='master') ->
 	exec "/usr/bin/env git submodule update" if @submodules is true
 	
 	this.status (cambios)->
-		console.log cambios
 		if cambios.length>0
 			callback {"error": true, "because": "Branch '#{branch}' has unstaged changes.", "changes": cambios}
 		else
-			status = exec "/usr/bin/env git pull #{repo} #{branch}", (error, stdout, stderr) ->
+			status = exec "/usr/bin/env git pull #{repo} #{branch} 2>&1", (error, stdout, stderr) ->
 				ret = validator(stdout).trim()
 				if ret is 'Already up-to-date.'
 					callback {"error": true, "because": "Branch '#{branch}' is already up to date."}
 				else
-					callback stdout
+					lines = validator(stdout).trim().split("\n").slice(2)
+					update = validator(lines.shift()).trim()
+					strategy = validator(lines.shift()).trim()
+					summary = validator(lines.pop()).trim()
+					changes = [];
+					console.log("update: #{update}");
+					for line of lines
+						changes.push validator(line).trim()
+						
+					callback {"update":update, "strategy":strategy, "summary":summary, "changes":changes}
 	
 
 module.exports = Git

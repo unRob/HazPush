@@ -2,7 +2,7 @@
 	"name": "haz-push",
 	"preferGlobal": "true",
 	"description": "Un paquete para hacer pull en un server remoto",
-	"version" : "1.0.0",
+	"version" : "0.0.2",
 	"homepage": "https://github.com/unrob/hazpush",
 	"author": "Roberto Hidalgo, Partido Surrealista Mexicano <rob@surrealsita.mx>",
 	"repository": {
@@ -15,7 +15,7 @@
 		"forever": ">=0.8.5"
 	},
 	"bin": {
-		"deploy": "./bin/deploy"
+		"hazpush": "./bin/hazpush"
 	},
 	"devDependencies": {
 		"coffee-script": ">=1.2.0"
