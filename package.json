@@ -1,0 +1,27 @@
+{
+	"name": "haz-push",
+	"preferGlobal": "true",
+	"description": "Un paquete para hacer pull en un server remoto",
+	"version" : "1.0.0",
+	"homepage": "https://github.com/unrob/hazpush",
+	"author": "Roberto Hidalgo, Partido Surrealista Mexicano <rob@surrealsita.mx>",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/unrob/hazpush"
+	},
+	"dependencies": {
+		"express": ">=2.5.8",
+		"validator": ">=0.4.2",
+		"forever": ">=0.8.5"
+	},
+	"bin": {
+		"deploy": "./bin/deploy"
+	},
+	"devDependencies": {
+		"coffee-script": ">=1.2.0"
+	},
+	"license": "MIT",
+	"engine": {
+		"node": ">=0.6"
+	}
+}
