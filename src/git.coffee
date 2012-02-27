@@ -40,11 +40,11 @@ Git.prototype.pull = (callback, repo='origin', branch='master') ->
 			callback {"error": true, "because": "Branch '#{branch}' has unstaged changes.", "changes": cambios}
 		else
 			status = exec "/usr/bin/env git pull #{repo} #{branch} 2>&1", (error, stdout, stderr) ->
-				ret = validator(stdout).trim()
-				if ret is 'Already up-to-date.'
+				ret = validator(stdout).trim().split "\n"
+				if ret.pop() is 'Already up-to-date.'
 					callback {"error": true, "because": "Branch '#{branch}' is already up to date."}
 				else
-					lines = validator(stdout).trim().split("\n").slice(2)
+					lines = ret.slice 2
 					update = validator(lines.shift()).trim()
 					strategy = validator(lines.shift()).trim()
 					summary = validator(lines.pop()).trim()

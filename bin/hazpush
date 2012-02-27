@@ -1,3 +1,5 @@
 #!/bin/bash
 
-forever start ../app.js $2
+BASE=`npm root -g`
+CONFIG=$(readlink -f -n $1)
+forever start "$BASE/haz-push/app.js" $CONFIG

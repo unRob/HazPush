@@ -5,14 +5,10 @@ crypto = require('crypto')
 
 
 app = express.createServer()
-
 configFile = process.argv[2]
-
 config = JSON.parse fs.readFileSync configFile, 'utf8'
-
 git = require('./git').create config.git_dir
 
-console.log(git)
 
 app.configure ()->
 	app.use app.router;

@@ -53,14 +53,14 @@
       } else {
         return status = exec("/usr/bin/env git pull " + repo + " " + branch + " 2>&1", function(error, stdout, stderr) {
           var changes, line, lines, ret, strategy, summary, update;
-          ret = validator(stdout).trim();
-          if (ret === 'Already up-to-date.') {
+          ret = validator(stdout).trim().split("\n");
+          if (ret.pop() === 'Already up-to-date.') {
             return callback({
               "error": true,
               "because": "Branch '" + branch + "' is already up to date."
             });
           } else {
-            lines = validator(stdout).trim().split("\n").slice(2);
+            lines = ret.slice(2);
             update = validator(lines.shift()).trim();
             strategy = validator(lines.shift()).trim();
             summary = validator(lines.pop()).trim();
