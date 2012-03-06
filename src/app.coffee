@@ -13,14 +13,13 @@ git = require('./git').create config.git_dir
 app.configure ()->
 	app.use app.router;
 
-
 auth = (app, req, next) ->
 	app.res.header 'X-Powered-by', 'HazPush/1.0b'
 	signature = req.req.headers['x-auth']
 	if !signature?
 		return app.res.json({error: "Auth FAIL!"}, 401)
 	
-	signer = crypto.createHmac('sha256', config.key)
+	signer = crypto.createHmac('sha256', new Buffer config.key, 'utf8')
 	verbo = app.method
 	url = req.req.url
 	expected = signer.update("#{app.method}::#{req.req.url}").digest 'hex'

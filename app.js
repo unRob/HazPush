@@ -17,8 +17,6 @@
 
   git = require('./git').create(config.git_dir);
 
-  console.log(git);
-
   app.configure(function() {
     return app.use(app.router);
   });
@@ -32,7 +30,7 @@
         error: "Auth FAIL!"
       }, 401);
     }
-    signer = crypto.createHmac('sha256', config.key);
+    signer = crypto.createHmac('sha256', new Buffer(config.key, 'utf8'));
     verbo = app.method;
     url = req.req.url;
     expected = signer.update("" + app.method + "::" + req.req.url).digest('hex');

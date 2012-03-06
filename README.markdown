@@ -17,5 +17,5 @@ Debe de ser un archivo JSON válido, like so:
 
     {
 		"git_dir": "/path/to/repo" //este no debe de ser el .git, sino el dir que lo contiene,
-		"key": "la llave que queremos usar para validar requests" //por el momento, sin acentos!
+		"key": "la llave que queremos usar para validar requests" //con los caracteres que quieran, ya jala!
 	}
