@@ -5,7 +5,7 @@ Ya me cagó ruby en Ubuntu, necesitaba un proyectito para usar coffeescript
 
 
 #Install
-`npm install -g https://github.com/unRob/HazPush/tarball/master`
+`npm install -g https://github.com/psm/HazPush/tarball/master`
 
 
 #Usage
