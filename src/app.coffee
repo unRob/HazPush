@@ -45,7 +45,7 @@ app.get '/pull', auth, (req, res) ->
 			for hook in config.hooks.pull
 				util.log hook
 				exec hook, (error, stdout, stderr) ->
-					util.log error, stdout, stderr
+					util.log stdout
 				
 		res.json(result, header)
 	
