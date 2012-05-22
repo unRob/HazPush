@@ -1,20 +1,21 @@
 fs = require 'fs'
 exec = require('child_process').exec
 validator = require('validator').sanitize
+util = require 'util'
 
 Git = (dir) ->
 	@submodules = false
 	try
 		@git_dir = fs.realpathSync dir
 		process.chdir @git_dir
-		console.log process.cwd()
+		util.log process.cwd()
 		
 		config = fs.readFileSync "#{@git_dir}/.git/config", 'utf8'
 		@submodules = true if config.match /^\[submodule "[\w\d]+"\]/m
 		
 		
 	catch error
-		console.log 'error: '+error
+		util.log 'error: '+error
 		process.exit(1)
 		
 	return this
@@ -49,7 +50,7 @@ Git.prototype.pull = (callback, repo='origin', branch='master') ->
 					strategy = validator(lines.shift()).trim()
 					summary = validator(lines.pop()).trim()
 					changes = [];
-					console.log("update: #{update}");
+					util.log("update: #{update}");
 					for line of lines
 						changes.push validator(line).trim()
 						

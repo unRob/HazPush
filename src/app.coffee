@@ -2,6 +2,8 @@ fs = require 'fs'
 express = require 'express'
 validator = require('validator').sanitize
 crypto = require('crypto')
+exec = require('child_process').exec
+util = require 'util'
 
 
 app = express.createServer()
@@ -38,11 +40,17 @@ app.get '/pull', auth, (req, res) ->
 	git.pull (result) ->
 		header = 200
 		header = 409 if 'error' of result is true
+		if config.hooks.pull
+			util.log "Calling pull hooks"
+			for hook in config.hooks.pull
+				exec hook (error, stdout, stderr) ->
+					util.log error, stdout, stderr
+				
 		res.json(result, header)
 	
 	
 app.get /^\/switch\/?([^\/+])/, (req, res) ->
 	res.json('Hello! I am Lindsay Lohan!')
 		
-		
-app.listen 3000
+puerto = config.port || 3000;	
+app.listen puerto

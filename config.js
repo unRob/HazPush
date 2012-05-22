@@ -1,4 +1,4 @@
 {
-	"git_dir": "/path/to/repo",
+	"git_dir": "/Users/rob/dev/hazpush",
 	"key": "Some very long and stupid key"
 }
