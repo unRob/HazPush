@@ -1,5 +1,5 @@
 (function() {
-  var Git, exec, fs, validator;
+  var Git, exec, fs, util, validator;
 
   fs = require('fs');
 
@@ -7,17 +7,19 @@
 
   validator = require('validator').sanitize;
 
+  util = require('util');
+
   Git = function(dir) {
     var config;
     this.submodules = false;
     try {
       this.git_dir = fs.realpathSync(dir);
       process.chdir(this.git_dir);
-      console.log(process.cwd());
+      util.log(process.cwd());
       config = fs.readFileSync("" + this.git_dir + "/.git/config", 'utf8');
       if (config.match(/^\[submodule "[\w\d]+"\]/m)) this.submodules = true;
     } catch (error) {
-      console.log('error: ' + error);
+      util.log('error: ' + error);
       process.exit(1);
     }
     return this;
@@ -65,7 +67,7 @@
             strategy = validator(lines.shift()).trim();
             summary = validator(lines.pop()).trim();
             changes = [];
-            console.log("update: " + update);
+            util.log("update: " + update);
             for (line in lines) {
               changes.push(validator(line).trim());
             }

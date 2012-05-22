@@ -1,5 +1,5 @@
 (function() {
-  var app, auth, config, configFile, crypto, express, fs, git, validator;
+  var app, auth, config, configFile, crypto, exec, express, fs, git, puerto, util, validator;
 
   fs = require('fs');
 
@@ -8,6 +8,10 @@
   validator = require('validator').sanitize;
 
   crypto = require('crypto');
+
+  exec = require('child_process').exec;
+
+  util = require('util');
 
   app = express.createServer();
 
@@ -51,9 +55,19 @@
 
   app.get('/pull', auth, function(req, res) {
     return git.pull(function(result) {
-      var header;
+      var header, hook, _i, _len, _ref;
       header = 200;
       if ('error' in result === true) header = 409;
+      if (config.hooks.pull) {
+        util.log("Calling pull hooks");
+        _ref = config.hooks.pull;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          hook = _ref[_i];
+          exec(hook(function(error, stdout, stderr) {
+            return util.log(error, stdout, stderr);
+          }));
+        }
+      }
       return res.json(result, header);
     });
   });
@@ -62,6 +76,8 @@
     return res.json('Hello! I am Lindsay Lohan!');
   });
 
-  app.listen(3000);
+  puerto = config.port || 3000;
+
+  app.listen(puerto);
 
 }).call(this);
