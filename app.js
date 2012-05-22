@@ -65,7 +65,7 @@
           hook = _ref[_i];
           util.log(hook);
           exec(hook, function(error, stdout, stderr) {
-            return util.log(error, stdout, stderr);
+            return util.log(stdout || 'Comando ejecutado');
           });
         }
       }
