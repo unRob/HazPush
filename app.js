@@ -63,9 +63,10 @@
         _ref = config.hooks.pull;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           hook = _ref[_i];
-          exec(hook(function(error, stdout, stderr) {
+          util.log(hook);
+          exec(hook, function(error, stdout, stderr) {
             return util.log(error, stdout, stderr);
-          }));
+          });
         }
       }
       return res.json(result, header);

@@ -43,7 +43,8 @@ app.get '/pull', auth, (req, res) ->
 		if config.hooks.pull
 			util.log "Calling pull hooks"
 			for hook in config.hooks.pull
-				exec hook (error, stdout, stderr) ->
+				util.log hook
+				exec hook, (error, stdout, stderr) ->
 					util.log error, stdout, stderr
 				
 		res.json(result, header)
