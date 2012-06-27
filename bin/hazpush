@@ -2,4 +2,4 @@
 
 BASE=`npm root -g`
 CONFIG=$(readlink -f -n $1)
-forever start "$BASE/haz-push/app.js" $CONFIG
+$BASE/haz-push/node_modules/forever/bin/forever start "$BASE/haz-push/app.js" $CONFIG

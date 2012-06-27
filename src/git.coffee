@@ -43,6 +43,7 @@ Git.prototype.pull = (callback, repo='origin', branch='master') ->
 			status = exec "/usr/bin/env git pull #{repo} #{branch} 2>&1", (error, stdout, stderr) ->
 				ret = validator(stdout).trim().split "\n"
 				if ret.pop() is 'Already up-to-date.'
+					util.log 'error, el repo ya está actualizado'
 					callback {"error": true, "because": "Branch '#{branch}' is already up to date."}
 				else
 					lines = ret.slice 2

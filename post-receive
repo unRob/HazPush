@@ -1,0 +1,163 @@
+#!/usr/bin/env /usr/local/rvm/wrappers/ruby-1.9.2-p290/ruby
+# coding: utf-8
+require 'rubygems'
+require 'parseconfig'
+
+user = ENV['GL_USER'] || 'anonimo'
+repo = ENV['GL_REPO']
+base = ENV['GL_REPO_BASE'] || '/Users/magritte/git/repositories'
+
+git_dir = "#{base}/#{repo}.git"
+
+argses = $stdin.readlines
+argses = argses[0].split(' ')
+
+oldrev = argses[0].dup
+newrev = argses[1].dup
+refname = argses[2].dup
+
+=begin
+# Este pedo es para meter los commits recibidos a una db
+require 'mongo'
+db = Mongo::Connection.new().db('psmhub')
+usuarios = {}
+db['usuarios'].find.each do |u|
+  usuarios[u['correo']] = u['_id']
+end
+
+
+commits = `git --git-dir=#{git_dir} log #{oldrev}..#{newrev} --pretty='%H|||%ce|||%ct|||%B^^^^'`
+commits.strip!.split(/\^\^\^\^\n*/m).each_with_index do |commit, index|
+  sha,autor,ts,body = commit.split('|||')
+  lines = body.split("\n").select {|l| l.strip != ''}
+  titulo = lines.shift
+  if lines.length > 0
+    detalles = lines.join("\n")
+  end
+  
+  nuevo = {
+    :_id => "#{repo}:#{sha}",
+    :repo => repo,
+    :autor => usuarios[autor],
+    :titulo => titulo,
+    :detalles => detalles,
+    :fecha => Time.at(ts.to_i),
+  }
+  begin
+    db['commits'].insert(nuevo)
+    if index==0
+      db['repos'].update({_id: repo}, {'$set' => {lastCommit: "#{repo}:#{sha}", updated_at:Time.new()}})
+    end
+  rescue Exception =>e
+    puts "No pude meter los commits nuevos a PSMHub :("
+  end
+end
+=end
+
+config = ParseConfig.new("#{git_dir}/config").params['deploy']
+
+if (!config)
+  puts "Gracias, #{user}"
+  exit(true);
+end
+
+
+defaults = {
+	url: 'marialuisa.local',
+	port: false,
+	fullname: repo,
+	key: "mira, un salmón!",
+	server: 'rob'
+}
+
+
+config = defaults.merge(config)
+
+if( user==config['server'] || config['server'].split(',').include?(user) )
+  puts "Hola server!"
+  exit(true);
+end
+
+puts 'Hola '+user+'!'
+require 'openssl'
+require 'httparty'
+require 'json'
+require 'base64'
+
+
+if( argses.count != 3 )
+  puts argses.count
+  puts argses
+  puts "[ERROR] No recibí información del commit"
+  exit(false)
+end
+
+puts ''
+
+if( refname != "refs/heads/master" )
+  error = "WARN"
+  razon = "No mandaré nada al server"
+  puts "[WARN] No mandaré nada al server"
+  #puts ARGV
+  exit(true)
+end
+puts '-'*70
+STDOUT.write "- Actualizando repo... "
+  
+refs = {
+  'de'      => oldrev,
+  'a'       => newrev,
+  'branch'  => refname
+}
+
+if ( config['cluster'] )
+  urls = config['cluster'].split(',')
+else
+  port = config['port'] ? ":#{config['port']}" : '';
+  scheme = config['https'] ? 'https' : 'http';
+  urls = ["#{scheme}://#{config['url']}#{port}"]
+end
+  
+headers = {
+  'X-Auth' => OpenSSL::HMAC.hexdigest('sha256', config['key'], "GET::/pull")
+}
+      
+begin
+  urls.each do |url|
+    r = HTTParty.get("#{url}/pull", :headers => headers)
+    if( r.success? )
+      response = JSON.parse r.body
+      if( !response['error'] )
+        status = "SUCCESS"
+        razon = "Deployment listo"
+        puts "#{url}\n"
+        puts "#{status}! #{razon} -\n"
+        puts '-'*70
+        STDOUT.write response['summary']
+      end
+    else
+      error = "error"
+      razon = "Se cagó el server"
+      STDOUT.write "#{error}! #{razon} -\n"
+      puts '-'*70
+      begin
+        response = JSON.parse Base64.decode64(r)
+        STDOUT.write "#{response['razon']}"
+      
+        pp response
+      rescue
+        puts r.code
+      end
+    end
+  end
+rescue Exception =>e
+  puts "\n- ERROR! HTTParty se cagó"
+  puts "\n- Seguro el deploy server [#{url}] está abajo!"
+  puts '-'*70
+  pp e
+  #exit(true);
+end
+  
+  
+
+puts ''

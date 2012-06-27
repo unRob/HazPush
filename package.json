@@ -10,7 +10,7 @@
 		"url": "https://github.com/psm/hazpush"
 	},
 	"dependencies": {
-		"express": ">=2.5.8",
+		"express": "2.5.8",
 		"validator": ">=0.4.2",
 		"forever": ">=0.8.5"
 	},
