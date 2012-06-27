@@ -57,6 +57,7 @@
           var changes, line, lines, ret, strategy, summary, update;
           ret = validator(stdout).trim().split("\n");
           if (ret.pop() === 'Already up-to-date.') {
+            util.log('error, el repo ya está actualizado');
             return callback({
               "error": true,
               "because": "Branch '" + branch + "' is already up to date."

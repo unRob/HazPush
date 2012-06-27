@@ -39,7 +39,7 @@
     url = req.req.url;
     expected = signer.update("" + app.method + "::" + req.req.url).digest('hex');
     if (signature !== expected) {
-      console.log("" + signature + " != " + expected);
+      util.log("" + signature + " != " + expected);
       return app.res.json({
         error: "Auth FAIL!"
       }, 401);
