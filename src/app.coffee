@@ -17,6 +17,13 @@ app.configure ()->
 
 auth = (app, req, next) ->
 	app.res.header 'X-Powered-by', 'HazPush/1.0b'
+	
+	if config.github
+		if req.connection.remoteAddress in ['207.97.227.253', '50.57.128.197', '108.171.174.178']
+			return next()
+		else
+			return app.res.json({error: "Auth FAIL!"}, 401)
+	
 	signature = req.req.headers['x-auth']
 	if !signature?
 		return app.res.json({error: "Auth FAIL!"}, 401)

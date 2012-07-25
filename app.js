@@ -26,8 +26,17 @@
   });
 
   auth = function(app, req, next) {
-    var expected, signature, signer, url, verbo;
+    var expected, signature, signer, url, verbo, _ref;
     app.res.header('X-Powered-by', 'HazPush/1.0b');
+    if (config.github) {
+      if ((_ref = req.connection.remoteAddress) === '207.97.227.253' || _ref === '50.57.128.197' || _ref === '108.171.174.178') {
+        return next();
+      } else {
+        return app.res.json({
+          error: "Auth FAIL!"
+        }, 401);
+      }
+    }
     signature = req.req.headers['x-auth'];
     if (!(signature != null)) {
       return app.res.json({
