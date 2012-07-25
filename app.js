@@ -62,7 +62,7 @@
     });
   });
 
-  app.get('/pull', auth, function(req, res) {
+  app.all('/pull', auth, function(req, res) {
     return git.pull(function(result) {
       var header, hook, _i, _len, _ref;
       header = 200;

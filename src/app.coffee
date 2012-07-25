@@ -43,7 +43,7 @@ app.get '/status', auth, (req, res) ->
 		res.json(cambios)
 
 
-app.get '/pull', auth, (req, res) ->
+app.all '/pull', auth, (req, res) ->
 	git.pull (result) ->
 		header = 200
 		header = 409 if 'error' of result is true
