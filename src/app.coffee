@@ -22,11 +22,12 @@ auth = (app, req, next) ->
 		Netmask = require('netmask').Netmask
 		blocks = ['207.97.227.253/32', '50.57.128.197/32', '108.171.174.178/32', '50.57.231.61/32', '204.232.175.64/27', '192.30.252.0/22']
 		thisIP = req.connection.remoteAddress
+		util.log(thisIP);
 
-
-		for block of blocks
+		for index, block of blocks
 			b = new Netmask(block);
 			if b.contains thisIP
+				util.log('FFFFFOUND');
 				return next()
 
 		return app.res.json({error: "Auth FAIL!"}, 401)
