@@ -12,7 +12,8 @@
 	"dependencies": {
 		"express": "2.5.8",
 		"validator": ">=0.4.2",
-		"forever": ">=0.8.5"
+		"forever": ">=0.8.5",
+		"netmask": ">=0.0.2"
 	},
 	"bin": {
 		"hazpush": "./bin/hazpush"

@@ -26,16 +26,20 @@
   });
 
   auth = function(app, req, next) {
-    var expected, signature, signer, url, verbo, _ref;
+    var Netmask, b, block, blocks, expected, signature, signer, thisIP, url, verbo;
     app.res.header('X-Powered-by', 'HazPush/1.0b');
     if (config.github) {
-      if ((_ref = req.connection.remoteAddress) === '207.97.227.253' || _ref === '50.57.128.197' || _ref === '108.171.174.178') {
-        return next();
-      } else {
-        return app.res.json({
-          error: "Auth FAIL!"
-        }, 401);
+      util.log('config github');
+      Netmask = require('netmask').Netmask;
+      blocks = ['207.97.227.253/32', '50.57.128.197/32', '108.171.174.178/32', '50.57.231.61/32', '204.232.175.64/27', '192.30.252.0/22'];
+      thisIP = req.connection.remoteAddress;
+      for (block in blocks) {
+        b = new Netmask(block);
+        if (b.contains(thisIP)) return next();
       }
+      return app.res.json({
+        error: "Auth FAIL!"
+      }, 401);
     }
     signature = req.req.headers['x-auth'];
     if (!(signature != null)) {
@@ -63,10 +67,12 @@
   });
 
   app.all('/pull', auth, function(req, res) {
+    util.log('pulleando');
     return git.pull(function(result) {
       var header, hook, _i, _len, _ref;
       header = 200;
       if ('error' in result === true) header = 409;
+      util.log('Pull');
       if (config.hooks.pull) {
         util.log("Calling pull hooks");
         _ref = config.hooks.pull;
@@ -87,7 +93,7 @@
   });
 
   puerto = config.port || 3000;
-
+  util.log(puerto);
   app.listen(puerto);
 
 }).call(this);
