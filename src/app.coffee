@@ -6,7 +6,7 @@ exec = require('child_process').exec
 util = require 'util'
 
 
-app = express.createServer()
+app = express()
 configFile = process.argv[2]
 config = JSON.parse fs.readFileSync configFile, 'utf8'
 git = require('./git').create config.git_dir
@@ -20,7 +20,7 @@ auth = (app, req, next) ->
 	
 	if config.github
 		Netmask = require('netmask').Netmask
-		blocks = ['207.97.227.253/32', '50.57.128.197/32', '108.171.174.178/32', '50.57.231.61/32', '204.232.175.64/27', '192.30.252.0/22']
+		blocks = ['204.232.175.64/27', '192.30.252.0/22']
 		thisIP = req.connection.remoteAddress
 		util.log(thisIP);
 
