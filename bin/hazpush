@@ -2,4 +2,4 @@
 
 BASE=`npm root -g`
 CONFIG=$(readlink -f -n $1)
-$BASE/haz-push/node_modules/forever/bin/forever --minUptime 1000, --spinSleepTime 1000 start "$BASE/haz-push/app.js" $CONFIG
+$BASE/haz-push/node_modules/forever/bin/forever --minUptime=1000 --spinSleepTime=1000 start "$BASE/haz-push/app.js" $CONFIG
