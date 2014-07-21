@@ -23,3 +23,6 @@ hazpush add /var/www/someWebApp
 hazpush server start
 ```
 
+## What happened to the post-pull hooks?
+
+Well, those can be accomplished by [setting up a post-merge hook](https://gist.github.com/sindresorhus/7996717).
