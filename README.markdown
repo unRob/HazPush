@@ -1,25 +1,25 @@
-#Haz Push
+# Hazpush
 
-Un app en Node.js para hacer deployment automático al hacer push.
-Ya me cagó ruby en Ubuntu, necesitaba un proyectito para usar coffeescript
+A nodejs app to `git pull` on a remote server.
 
+## Installation
 
-#Install
-`npm install -g git://github.com/psm/HazPush.git`
+`npm install hazpush`
 
+## Usage
 
-#Usage
-$`hazpush /path/to/configFile.js`
+### Configure your github credentials and server port/hostname
+```
+hazpush setup
+```
 
+### Now, go ahead and add the server repo to be watched
+```
+hazpush add /var/www/someWebApp
+```
 
-#Configuración
-Debe de ser un archivo JSON válido, like so:
+### Time to start the server and have it pull automagically
+```
+hazpush server start
+```
 
-    {
-		"git_dir": "/path/to/repo", //este no debe de ser el .git, sino el dir que lo contiene,
-		"key": "la llave que queremos usar para validar requests", //con los caracteres que quieran, ya jala!
-		"port": 3000, //El puerto, por default 3000
-		"hooks": {
-			"push": ["el comando a ejecutar al hacer pull en el server"]
-		}
-	}
