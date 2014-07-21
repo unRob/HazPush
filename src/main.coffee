@@ -216,7 +216,7 @@ server.help 'Control the http daemon'
 server.callback (opts)->
 	checkAuth()
 
-	validOpts = ['start', 'stop', 'logs']
+	validOpts = ['start', 'stop', 'logs', 'tail']
 	if validOpts.indexOf(opts.signal) == -1
 		console.log "Valid options for `server` are [#{validOpts.join(' | ')}]"
 		die()
@@ -252,9 +252,10 @@ server.callback (opts)->
 				console.error("Server was not running or could not be killed.")
 			Config.remove('running')
 		when 'logs'
-			console.log('not implemented :/')
+			log = fs.createReadStream(logPath)
+			log.on 'data', (buff)-> console.log(buff.toString())
 		when 'tail'
 			tail = new Tail(logPath)
-			tail.on 'line', (str)-> console.log("[SERVER] #{str}")
+			tail.on 'line', console.log
 
 parser.parse()

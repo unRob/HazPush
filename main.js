@@ -260,9 +260,9 @@
   server.help('Control the http daemon');
 
   server.callback(function(opts) {
-    var args, err, logFD, logPath, pid, port, proc, tail, validOpts;
+    var args, err, log, logFD, logPath, pid, port, proc, tail, validOpts;
     checkAuth();
-    validOpts = ['start', 'stop', 'logs'];
+    validOpts = ['start', 'stop', 'logs', 'tail'];
     if (validOpts.indexOf(opts.signal) === -1) {
       console.log("Valid options for `server` are [" + (validOpts.join(' | ')) + "]");
       die();
@@ -298,12 +298,13 @@
         }
         return Config.remove('running');
       case 'logs':
-        return console.log('not implemented :/');
+        log = fs.createReadStream(logPath);
+        return log.on('data', function(buff) {
+          return console.log(buff.toString());
+        });
       case 'tail':
         tail = new Tail(logPath);
-        return tail.on('line', function(str) {
-          return console.log("[SERVER] " + str);
-        });
+        return tail.on('line', console.log);
     }
   });
 
