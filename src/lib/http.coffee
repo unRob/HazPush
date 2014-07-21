@@ -96,7 +96,7 @@ app.all /\/pull\/([\w-\/]+)/, (req, res)->
 				error: "Can't pull, unstaged changes"
 				changes: status.files
 			Log('warn', error.error)
-			return res.json(error, 409)
+			return res.json(409, error)
 
 		git_repo.pull (err)->
 			return git_error(err) if err
