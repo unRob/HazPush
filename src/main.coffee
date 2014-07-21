@@ -1,6 +1,6 @@
 parser = require 'nomnom'
 githubAPI = require 'github'
-git = require 'nodegit'
+git = require 'gift'
 prompt = require 'prompt'
 path = require 'path'
 fs = require 'fs'
@@ -138,70 +138,76 @@ add.callback (opts)->
 		die()
 
 
-	git.Repository.open "#{repo_path}/.git", (err, repo)->
+	repo = git repo_path
+
+	repo.config (err, cfg)->
 		if err
 			console.error("Could not open repo", err);
 			die()
 
-		git.Remote.load(repo, 'origin').then (origin)->
-			gh_url = origin.url().split(':')[1].replace('.git', '')
-			console.log("Trying to set hooks for #{gh_url}")
+		origin = cfg['remote.origin.url']
+		if !(origin =~ /github\.com/)
+			console.error("This repo does not seem to be published to github")
+			die()
 
-			[user, repo] = gh_url.split('/')
-			secret = require('crypto').randomBytes(16).toString('hex')
-			url = "http://#{Config.get('host')}:#{Config.get('port')}/pull/#{gh_url}"
+		gh_url = origin.split(/:/)[1].replace('.git', '')
+		console.log("Trying to set hooks for #{gh_url}")
 
-			hook =
-				user: user,
-				repo: repo,
-				name: 'web',
-				config: {
-					url: url,
-					content_type: 'json',
-					secret: secret
-				}
+		[user, repo] = gh_url.split('/')
+		secret = require('crypto').randomBytes(16).toString('hex')
+		url = "http://#{Config.get('host')}:#{Config.get('port')}/pull/#{gh_url}"
 
-			repos = Config.get('repos') || {}
-			
-			newInfo = {
-				path: repo_path,
+		hook =
+			user: user,
+			repo: repo,
+			name: 'web',
+			config: {
+				url: url,
+				content_type: 'json',
 				secret: secret
 			}
 
-
-			github.repos.getHooks {user: hook.user, repo: hook.repo}, (err,hooks)->
-				if err
-					console.log(err)
-					die()
-				else
-					hook_exists = false
-					for h in hooks
-						if h.config.url == url
-							if repos.hasOwnProperty(gh_url)
-								newInfo.id = h.id
-								newInfo.secret = repos[gh_url].secret
-								hook_exists = true
-							else
-								# Delete the hook, since we can't get the secret from GH
-								github.repos.deleteHook({repo: repo, user: user, id: h.id}, noop)
-							break;
+		repos = Config.get('repos') || {}
+		
+		newInfo = {
+			path: repo_path,
+			secret: secret
+		}
 
 
-				if hook_exists
-					console.log("This repo already has the webhook, updating info...")
-					repos[gh_url] = newInfo
-					Config.set('repos', repos)
-					console.log("Done")
-				else
-					console.log("Adding webhook to the repo...")
-					github.repos.createHook hook, (err, res)->
-						if (err)
-							console.log(err)
+		github.repos.getHooks {user: hook.user, repo: hook.repo}, (err,hooks)->
+			if err
+				console.log(err)
+				die()
+			else
+				hook_exists = false
+				for h in hooks
+					if h.config.url == url
+						if repos.hasOwnProperty(gh_url)
+							newInfo.id = h.id
+							newInfo.secret = repos[gh_url].secret
+							hook_exists = true
 						else
-							repos[gh_url] = newInfo
-							repos[gh_url].id = res.id
-							Config.set('repos', repos)
-							console.log("Done")
+							# Delete the hook, since we can't get the secret from GH
+							github.repos.deleteHook({repo: repo, user: user, id: h.id}, noop)
+						break;
+
+
+			if hook_exists
+				console.log("This repo already has the webhook, updating info...")
+				repos[gh_url] = newInfo
+				Config.set('repos', repos)
+				console.log("Done")
+			else
+				console.log("Adding webhook to the repo...")
+				github.repos.createHook hook, (err, res)->
+					if (err)
+						console.log(err)
+					else
+						repos[gh_url] = newInfo
+						repos[gh_url].id = res.id
+						Config.set('repos', repos)
+						console.log("Done")
 			
 
 server = parser.command 'server'

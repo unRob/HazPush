@@ -1,9 +1,12 @@
 {
-  "name": "haz-push",
+  "name": "hazpush",
   "preferGlobal": "true",
-  "description": "Un paquete para hacer pull en un server remoto",
-  "version": "2.0.0b",
+  "description": "Remote git pull",
+  "version": "0.2.0",
   "homepage": "https://github.com/psm/hazpush",
+  "bugs": {
+    "url": "https://github.com/notatestuser/gift/issues"
+  },
   "author": "Roberto Hidalgo, Partido Surrealista Mexicano <rob@surrealsita.mx>",
   "repository": {
     "type": "git",
@@ -13,7 +16,6 @@
     "express": "^4.6.1",
     "gift": "^0.4.2",
     "github": "^0.2.1",
-    "nodegit": "https://github.com/nodegit/nodegit/tarball/master",
     "nomnom": "^1.8.0",
     "prompt": "^0.2.13",
     "tail": "^0.3.6"
@@ -21,11 +23,20 @@
   "bin": {
     "hazpush": "bin/hazpush"
   },
+  "scripts": {
+    "prepublish": "coffee -o . -c src"
+  },
   "devDependencies": {
     "coffee-script": ">=1.2.0"
   },
   "license": "WTFPL",
   "engine": {
     "node": ">=0.10"
-  }
+  },
+  "keywords": [
+    "git",
+    "github",
+    "pull",
+    "deploy"
+  ]
 }

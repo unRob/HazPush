@@ -6,7 +6,7 @@
 
   githubAPI = require('github');
 
-  git = require('nodegit');
+  git = require('gift');
 
   prompt = require('prompt');
 
@@ -162,87 +162,91 @@
   add.help('Add a repository to the list');
 
   add.callback(function(opts) {
-    var repo_path;
+    var repo, repo_path;
     checkAuth();
     repo_path = path.resolve(opts.repo);
     if (!fs.existsSync("" + repo_path + "/.git")) {
       console.error("" + repo_path + " is not a git repo (could not find .git within)");
       die();
     }
-    return git.Repository.open("" + repo_path + "/.git", function(err, repo) {
+    repo = git(repo_path);
+    return repo.config(function(err, cfg) {
+      var gh_url, hook, newInfo, origin, repos, secret, url, user, _ref;
       if (err) {
         console.error("Could not open repo", err);
         die();
       }
-      return git.Remote.load(repo, 'origin').then(function(origin) {
-        var gh_url, hook, newInfo, repos, secret, url, user, _ref;
-        gh_url = origin.url().split(':')[1].replace('.git', '');
-        console.log("Trying to set hooks for " + gh_url);
-        _ref = gh_url.split('/'), user = _ref[0], repo = _ref[1];
-        secret = require('crypto').randomBytes(16).toString('hex');
-        url = "http://" + (Config.get('host')) + ":" + (Config.get('port')) + "/pull/" + gh_url;
-        hook = {
-          user: user,
-          repo: repo,
-          name: 'web',
-          config: {
-            url: url,
-            content_type: 'json',
-            secret: secret
-          }
-        };
-        repos = Config.get('repos') || {};
-        newInfo = {
-          path: repo_path,
+      origin = cfg['remote.origin.url'];
+      if (!(origin = ~/github\.com/)) {
+        console.error("This repo does not seem to be published to github");
+        die();
+      }
+      gh_url = origin.split(/:/)[1].replace('.git', '');
+      console.log("Trying to set hooks for " + gh_url);
+      _ref = gh_url.split('/'), user = _ref[0], repo = _ref[1];
+      secret = require('crypto').randomBytes(16).toString('hex');
+      url = "http://" + (Config.get('host')) + ":" + (Config.get('port')) + "/pull/" + gh_url;
+      hook = {
+        user: user,
+        repo: repo,
+        name: 'web',
+        config: {
+          url: url,
+          content_type: 'json',
           secret: secret
-        };
-        return github.repos.getHooks({
-          user: hook.user,
-          repo: hook.repo
-        }, function(err, hooks) {
-          var h, hook_exists, _i, _len;
-          if (err) {
-            console.log(err);
-            die();
-          } else {
-            hook_exists = false;
-            for (_i = 0, _len = hooks.length; _i < _len; _i++) {
-              h = hooks[_i];
-              if (h.config.url === url) {
-                if (repos.hasOwnProperty(gh_url)) {
-                  newInfo.id = h.id;
-                  newInfo.secret = repos[gh_url].secret;
-                  hook_exists = true;
-                } else {
-                  github.repos.deleteHook({
-                    repo: repo,
-                    user: user,
-                    id: h.id
-                  }, noop);
-                }
-                break;
+        }
+      };
+      repos = Config.get('repos') || {};
+      newInfo = {
+        path: repo_path,
+        secret: secret
+      };
+      return github.repos.getHooks({
+        user: hook.user,
+        repo: hook.repo
+      }, function(err, hooks) {
+        var h, hook_exists, _i, _len;
+        if (err) {
+          console.log(err);
+          die();
+        } else {
+          hook_exists = false;
+          for (_i = 0, _len = hooks.length; _i < _len; _i++) {
+            h = hooks[_i];
+            if (h.config.url === url) {
+              if (repos.hasOwnProperty(gh_url)) {
+                newInfo.id = h.id;
+                newInfo.secret = repos[gh_url].secret;
+                hook_exists = true;
+              } else {
+                github.repos.deleteHook({
+                  repo: repo,
+                  user: user,
+                  id: h.id
+                }, noop);
               }
+              break;
             }
           }
-          if (hook_exists) {
-            console.log("This repo already has the webhook, updating info...");
-            repos[gh_url] = newInfo;
-            Config.set('repos', repos);
-            return console.log("Done");
-          } else {
-            console.log("Adding webhook to the repo...");
-            return github.repos.createHook(hook, function(err, res) {
-              if (err) {
-                return console.log(err);
-              } else {
-                repos[gh_url] = newInfo;
-                repos[gh_url].id = res.id;
-                Config.set('repos', repos);
-                return console.log("Done");
-              }
-            });
-          }
-        });
+        }
+        if (hook_exists) {
+          console.log("This repo already has the webhook, updating info...");
+          repos[gh_url] = newInfo;
+          Config.set('repos', repos);
+          return console.log("Done");
+        } else {
+          console.log("Adding webhook to the repo...");
+          return github.repos.createHook(hook, function(err, res) {
+            if (err) {
+              return console.log(err);
+            } else {
+              repos[gh_url] = newInfo;
+              repos[gh_url].id = res.id;
+              Config.set('repos', repos);
+              return console.log("Done");
+            }
+          });
+        }
       });
     });
   });
