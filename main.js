@@ -181,7 +181,7 @@
         console.error("This repo does not seem to be published to github");
         die();
       }
-      gh_url = origin.split(/:/)[1].replace('.git', '');
+      gh_url = origin.split(/:/)[1].replace('.git', '').replace(/^\//, '');
       console.log("Trying to set hooks for " + gh_url);
       _ref = gh_url.split('/'), user = _ref[0], repo = _ref[1];
       secret = require('crypto').randomBytes(16).toString('hex');

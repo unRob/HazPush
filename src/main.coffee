@@ -150,7 +150,7 @@ add.callback (opts)->
 			console.error("This repo does not seem to be published to github")
 			die()
 
-		gh_url = origin.split(/:/)[1].replace('.git', '')
+		gh_url = origin.split(/:/)[1].replace('.git', '').replace(/^\//, '')
 		console.log("Trying to set hooks for #{gh_url}")
 
 		[user, repo] = gh_url.split('/')
