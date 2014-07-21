@@ -2,7 +2,6 @@ express = require 'express'
 git = require 'gift'
 crypto = require 'crypto'
 app = express()
-git = require 'nodegit'
 Config = require './config'
 
 Config.watch()
