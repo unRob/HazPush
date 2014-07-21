@@ -4,7 +4,7 @@ A nodejs app to `git pull` on a remote server.
 
 ## Installation
 
-`npm install hazpush`
+`npm install -g hazpush`
 
 ## Usage
 

@@ -176,8 +176,8 @@
         console.error("Could not open repo", err);
         die();
       }
-      origin = cfg['remote.origin.url'];
-      if (!(origin = ~/github\.com/)) {
+      origin = cfg.items['remote.origin.url'];
+      if (!(origin.match(/github\.com/)) || !origin) {
         console.error("This repo does not seem to be published to github");
         die();
       }
