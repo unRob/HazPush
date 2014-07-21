@@ -2,10 +2,10 @@
   "name": "hazpush",
   "preferGlobal": "true",
   "description": "Remote git pull",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "homepage": "https://github.com/psm/hazpush",
   "bugs": {
-    "url": "https://github.com/notatestuser/gift/issues"
+    "url": "https://github.com/psm/hazpush/issues"
   },
   "author": "Roberto Hidalgo, Partido Surrealista Mexicano <rob@surrealsita.mx>",
   "repository": {

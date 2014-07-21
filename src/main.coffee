@@ -90,7 +90,7 @@ setup.callback (opts)->
 
 
 			authorization_details = 
-				scopes: ["user", 'public_repo', 'repo', 'write:repo_hook'],
+				scopes: ['write:repo_hook'],
 				note: 'Hazpush Authorization',
 
 			github.authorization.getAll {}, (err, authorizations)->
