@@ -46,7 +46,7 @@ setup = parser.command('setup')
 setup.help('Setup your credentials for github access')
 setup.callback (opts)->
 	prompt.start()
-	schema = 
+	schema =
 		properties: {
 			host: {
 				description: 'Which domain will I listen to?',
@@ -89,7 +89,7 @@ setup.callback (opts)->
 			})
 
 
-			authorization_details = 
+			authorization_details =
 				scopes: ['write:repo_hook'],
 				note: 'Hazpush Authorization',
 
@@ -168,7 +168,7 @@ add.callback (opts)->
 			}
 
 		repos = Config.get('repos') || {}
-		
+
 		newInfo = {
 			path: repo_path,
 			secret: secret
@@ -208,7 +208,7 @@ add.callback (opts)->
 						repos[gh_url].id = res.id
 						Config.set('repos', repos)
 						console.log("Done")
-			
+
 
 server = parser.command 'server'
 server.option 'signal', {
@@ -231,16 +231,18 @@ server.callback (opts)->
 
 	switch opts.signal
 		when 'start'
-			logFD = fs.openSync(logPath, 'a+');
+			logOut = fs.openSync(logPath, 'a+');
+			# repeated because ubuntu refuses to open the same FD twice or some shit like that
+			logErr = fs.openSync(logPath, 'a+');
 			opts =
 				detached: true,
 				cwd: __dirname
-				stdio: [logFD, logFD, logFD]
+				stdio: ['ignore', logErr, logOut]
 
 			port = Config.get('port')
-			
+
 			args = ["#{__dirname}/lib/http.js", port]
-			proc = spawn('node', args, opts)
+			proc = spawn('/usr/bin/node', args, opts)
 			proc.unref()
 			Config.set('running', proc.pid)
 			console.log("Started hazpush Server on port #{port}. [pid #{proc.pid}]")
