@@ -264,7 +264,7 @@
   server.help('Control the http daemon');
 
   server.callback(function(opts) {
-    var args, err, log, logFD, logPath, pid, port, proc, tail, validOpts;
+    var args, err, log, logErr, logOut, logPath, pid, port, proc, tail, validOpts;
     checkAuth();
     validOpts = ['start', 'stop', 'logs', 'tail'];
     if (validOpts.indexOf(opts.signal) === -1) {
@@ -274,15 +274,16 @@
     logPath = "" + process.env['HOME'] + "/.hazpush.log";
     switch (opts.signal) {
       case 'start':
-        logFD = fs.openSync(logPath, 'a+');
+        logOut = fs.openSync(logPath, 'a+');
+        logErr = fs.openSync(logPath, 'a+');
         opts = {
           detached: true,
           cwd: __dirname,
-          stdio: [logFD, logFD, logFD]
+          stdio: ['ignore', logErr, logOut]
         };
         port = Config.get('port');
         args = ["" + __dirname + "/lib/http.js", port];
-        proc = spawn('node', args, opts);
+        proc = spawn('/usr/bin/node', args, opts);
         proc.unref();
         Config.set('running', proc.pid);
         return console.log("Started hazpush Server on port " + port + ". [pid " + proc.pid + "]");
