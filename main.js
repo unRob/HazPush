@@ -116,10 +116,41 @@
           note: 'Hazpush Authorization'
         };
         return github.authorization.getAll({}, function(err, authorizations) {
-          var authorization, token, _i, _len;
+          var authorization, getOTP, token, _i, _len;
           if (err) {
-            console.error('Could not login', err);
-            die();
+            if (err.message.match(/OTP/)) {
+              getOTP = {
+                properties: {
+                  OTP: {
+                    description: "Enter your OTP",
+                    required: true
+                  }
+                }
+              };
+              prompt.get(getOTP, function(err, res) {
+                if (err) {
+                  console.error('Could not login', err);
+                  die();
+                }
+                authorization_details['headers'] = {
+                  'X-Github-OTP': res.OTP
+                };
+                console.log(authorization_details);
+                return github.authorization.create(authorization_details, function(err, res) {
+                  var token;
+                  if (err) {
+                    console.error('Could not get OAuth token', err);
+                    die();
+                  }
+                  token = res.token;
+                  Config.set('github_token', token);
+                  return console.log("Authentication successfully stored");
+                });
+              });
+            } else {
+              console.error('Could not login', err);
+              die();
+            }
           }
           token = null;
           for (_i = 0, _len = authorizations.length; _i < _len; _i++) {

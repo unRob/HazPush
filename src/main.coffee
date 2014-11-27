@@ -80,24 +80,50 @@ setup.callback (opts)->
 		Config.set('host', res.host)
 		Config.set('port', res.port)
 
+		do_auth = (data, on_success)->
+			github.authenticate(data)
+
+			github.authorization.getAll {}, (err, response)->
+				if err
+					console.log(err)
+					if err.message.match /OTP/
+						getOTP =
+							properties: {
+								OTP: {
+									description: "Enter your OTP",
+									required: true
+								}
+							}
+						prompt.get getOTP, (err, res)->
+							if (err)
+								die err
+							else
+								github.authorization.getAll {headers: {'X-GitHub-OTP': res.OTP}}, (err, res)->
+									if err
+										console.log(err)
+									else
+										on_success(res)
+
+					else
+						console.log "Could not login"
+						console.log(err)
+						die
+				else
+					console.log(response)
+					on_success(response)
+
+		authorization_details =
+			scopes: ['write:repo_hook'],
+			note: 'Hazpush Authorization',
+
 
 		if auth_github
-			github.authenticate({
+			auth_data = {
 				type: 'basic',
 				username: res.username,
 				password: res.password
-			})
-
-
-			authorization_details =
-				scopes: ['write:repo_hook'],
-				note: 'Hazpush Authorization',
-
-			github.authorization.getAll {}, (err, authorizations)->
-				if err
-					console.error('Could not login', err)
-					die()
-
+			}
+			do_auth auth_data, (authorizations)->
 				token = null
 				for authorization in authorizations
 					if authorization.app.name == APP_NAME
