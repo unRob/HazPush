@@ -2,7 +2,7 @@
   "name": "hazpush",
   "preferGlobal": "true",
   "description": "Remote git pull",
-  "version": "0.2.9",
+  "version": "0.2.10",
   "homepage": "https://github.com/psm/hazpush",
   "bugs": {
     "url": "https://github.com/psm/hazpush/issues"

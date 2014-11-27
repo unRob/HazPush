@@ -74,8 +74,7 @@ app.all /\/pull\/([\w-\/]+)/, (req, res)->
 		res.status(401).send('Invalid Signature')
 		return
 
-
-	verified = crypto.createHmac('sha1', info.secret).update(req.rawBody).digest('hex')
+	verified = crypto.createHmac('sha1', info.secret).update(new Buffer(req.rawBody)).digest('hex')
 	if signature isnt verified
 		Log('error', "Invalid signature, got: <#{signature}>, expected: <#{verified}>");
 		res.status(401).send('Invalid signature');
