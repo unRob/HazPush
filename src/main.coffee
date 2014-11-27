@@ -38,9 +38,6 @@ die = (who='user')->
 
 noop = ()->	return null;
 
-########
-
-
 
 setup = parser.command('setup')
 setup.help('Setup your credentials for github access')
@@ -85,7 +82,6 @@ setup.callback (opts)->
 
 			github.authorization.getAll {}, (err, response)->
 				if err
-					console.log(err)
 					if err.message.match /OTP/
 						getOTP =
 							properties: {

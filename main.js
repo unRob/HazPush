@@ -100,23 +100,15 @@
       auth_github = false;
     }
     return prompt.get(schema, function(err, res) {
-      var authorization_details, url;
+      var auth_data, authorization_details, do_auth, url;
       url = "http://" + res.host + ":" + res.port;
       console.log("Saving webhook url as " + url);
       Config.set('host', res.host);
       Config.set('port', res.port);
-      if (auth_github) {
-        github.authenticate({
-          type: 'basic',
-          username: res.username,
-          password: res.password
-        });
-        authorization_details = {
-          scopes: ['write:repo_hook'],
-          note: 'Hazpush Authorization'
-        };
-        return github.authorization.getAll({}, function(err, authorizations) {
-          var authorization, getOTP, token, _i, _len;
+      do_auth = function(data, on_success) {
+        github.authenticate(data);
+        return github.authorization.getAll({}, function(err, response) {
+          var getOTP;
           if (err) {
             if (err.message.match(/OTP/)) {
               getOTP = {
@@ -127,31 +119,46 @@
                   }
                 }
               };
-              prompt.get(getOTP, function(err, res) {
+              return prompt.get(getOTP, function(err, res) {
                 if (err) {
-                  console.error('Could not login', err);
-                  die();
+                  return die(err);
+                } else {
+                  return github.authorization.getAll({
+                    headers: {
+                      'X-GitHub-OTP': res.OTP
+                    }
+                  }, function(err, res) {
+                    if (err) {
+                      return console.log(err);
+                    } else {
+                      return on_success(res);
+                    }
+                  });
                 }
-                authorization_details['headers'] = {
-                  'X-Github-OTP': res.OTP
-                };
-                console.log(authorization_details);
-                return github.authorization.create(authorization_details, function(err, res) {
-                  var token;
-                  if (err) {
-                    console.error('Could not get OAuth token', err);
-                    die();
-                  }
-                  token = res.token;
-                  Config.set('github_token', token);
-                  return console.log("Authentication successfully stored");
-                });
               });
             } else {
-              console.error('Could not login', err);
-              die();
+              console.log("Could not login");
+              console.log(err);
+              return die;
             }
+          } else {
+            console.log(response);
+            return on_success(response);
           }
+        });
+      };
+      authorization_details = {
+        scopes: ['write:repo_hook'],
+        note: 'Hazpush Authorization'
+      };
+      if (auth_github) {
+        auth_data = {
+          type: 'basic',
+          username: res.username,
+          password: res.password
+        };
+        return do_auth(auth_data, function(authorizations) {
+          var authorization, token, _i, _len;
           token = null;
           for (_i = 0, _len = authorizations.length; _i < _len; _i++) {
             authorization = authorizations[_i];
