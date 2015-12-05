@@ -319,7 +319,7 @@
           cwd: __dirname,
           stdio: ['ignore', logErr, logOut]
         };
-        port = Config.get('port');
+        port = Config.get('listenPort');
         args = ["" + __dirname + "/lib/http.js", port];
         proc = spawn('/usr/bin/node', args, opts);
         proc.unref();
