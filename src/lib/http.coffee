@@ -50,7 +50,7 @@ app.use (req, res, next)->
 		next()
 
 
-app.all /\/pull\/([\w-\/]+)/, (req, res)->
+app.all '/pull/*', (req, res)->
 	repo = req.params[0]
 	repos = Config.get('repos')
 	if !repos
