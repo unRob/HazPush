@@ -261,7 +261,7 @@ server.callback (opts)->
 				cwd: __dirname
 				stdio: ['ignore', logErr, logOut]
 
-			port = Config.get('port')
+			port = Config.get('listenPort') || Config.get('port')
 
 			args = ["#{__dirname}/lib/http.js", port]
 			proc = spawn('/usr/bin/node', args, opts)
